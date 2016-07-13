@@ -74,6 +74,7 @@ public class Statistics extends Thread {
 	}
 	
 	public void run() {
+		Thread.currentThread().setName("BOT - PROVIDER - Statistics");
 		while (true) {
 			try {
 				//update statistics

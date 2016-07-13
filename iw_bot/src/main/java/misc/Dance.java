@@ -17,6 +17,7 @@ public class Dance extends Thread{
 	}
 
 	public void run() {
+		Thread.currentThread().setName("BOT - MISC - Dance");
 		if (iAnimation == ASCII.DANCE) {
 			for (int i = 0; i < 15; i++) {
 				if (i == 0) {

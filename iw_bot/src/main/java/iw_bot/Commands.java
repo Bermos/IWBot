@@ -78,6 +78,23 @@ public class Commands {
 			}
 		});
 		
+		pmCommands.put("status", new PMCommand() {
+			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
+				//Permission check
+				DiscordInfo info = new DiscordInfo();
+				if (!info.isOwner(event.getAuthor().getId())) {
+					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+					return;
+				}
+				
+				String message = "Threads:\n";
+				for (Thread thread : Thread.getAllStackTraces().keySet()) {
+					message += ( thread.getId() + ": " + thread.getName() + "\n" );
+				}
+				event.getChannel().sendMessageAsync(message, null);
+			}
+		});
+		
 		pmCommands.put("restart", new PMCommand() {
 			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
 				//Permission check

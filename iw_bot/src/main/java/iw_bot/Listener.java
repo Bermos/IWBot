@@ -5,6 +5,7 @@ import java.util.Date;
 
 import iw_bot.Commands;
 import iw_core.Users;
+import misc.StatusGenerator;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.ReadyEvent;
@@ -24,7 +25,7 @@ import provider.Statistics;
 public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
-	public static final String VERSION_NUMBER = "2.0.0_7 alpha";
+	public static final String VERSION_NUMBER = "2.0.0_8 alpha";
 	
 	public Listener() {
 		this.commands = new Commands();
@@ -32,7 +33,7 @@ public class Listener extends ListenerAdapter {
 	
 	@Override
 	public void onReady(ReadyEvent event) {
-		System.out.println("[Info] Listener ready!");
+		System.out.println("[Info] Listener v" + VERSION_NUMBER + " ready!");
 		System.out.println("[Info] Connected to:");
 		for (Guild guild : event.getJDA().getGuilds()) {
 			System.out.println("	" + guild.getName());
@@ -41,9 +42,9 @@ public class Listener extends ListenerAdapter {
 		Statistics stats = Statistics.getInstance();
 		stats.connect(event.getJDA());
 		
-		event.getJDA().getAccountManager().setGame(VERSION_NUMBER);
 		Listener.startupTime = new Date().getTime();
-
+		new StatusGenerator(event.getJDA().getAccountManager());
+		
 		new Users();
 		Users.sync(event);
 	}
