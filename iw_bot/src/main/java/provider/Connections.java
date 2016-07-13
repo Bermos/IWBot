@@ -21,7 +21,7 @@ public class Connections {
 		Gson gson = new Gson();
 		
 		try {
-			JsonReader jReader = new JsonReader(new FileReader("C:/users/Bermos/IWBot/sqlinfo.json"));
+			JsonReader jReader = new JsonReader(new FileReader("./sqlinfo.json"));
 			SQLInfo info = gson.fromJson(jReader, SQLInfo.class);
 			
 			SQLConnection = DriverManager.getConnection(

@@ -25,13 +25,13 @@ public class DiscordInfo {
 	
 	private void getInfo() throws FileNotFoundException {
 		Gson gson = new Gson();
-		JsonReader jReader = new JsonReader(new FileReader("C:/users/Bermos/IWBot/discord.json"));
+		JsonReader jReader = new JsonReader(new FileReader("./discord.json"));
 		info = gson.fromJson(jReader, Info.class);
 	}
 	
 	private void setInfo() throws IOException {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		JsonWriter jWriter = new JsonWriter(new FileWriter("C:/users/Bermos/IWBot/discord.json"));
+		JsonWriter jWriter = new JsonWriter(new FileWriter("./discord.json"));
 		gson.toJson(info, Info.class, jWriter);
 		jWriter.close();
 	}

@@ -179,7 +179,7 @@ public class Commands {
 				if (!event.getMessage().getAttachments().isEmpty()) {
 					File avatarFile;
 					Attachment attachment = event.getMessage().getAttachments().get(0);
-					attachment.download(avatarFile = new File("C:/users/Bermos/IWBot/temp/newavatar.jpg"));
+					attachment.download(avatarFile = new File("./temp/newavatar.jpg"));
 					try {
 						Avatar avatar = AvatarUtil.getAvatar(avatarFile);
 						event.getJDA().getAccountManager().setAvatar(avatar).update();
@@ -606,7 +606,7 @@ public class Commands {
 						if(eImage.attr("src").contains("comic")) {
 							URL uRl = new URL("http:" + eImage.attr("src"));
 							image = ImageIO.read(uRl);
-							ImageIO.write((RenderedImage) image, "png", file = new File("C:/users/Bermos/IWBot/temp/" + iRandom + ".png"));
+							ImageIO.write((RenderedImage) image, "png", file = new File("./temp/" + iRandom + ".png"));
 							event.getChannel().sendFile(file, null);
 							file.delete();
 						}
