@@ -31,13 +31,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
-
 import misc.Dance;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import iw_core.Notes;
 import net.dv8tion.jda.entities.Message.Attachment;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Role;
@@ -106,63 +105,6 @@ public class Commands {
 				
 				event.getChannel().sendMessage("Trying to restart...");
 				System.exit(1);
-			}
-		});
-		
-		pmCommands.put("note", new PMCommand() {
-			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
-				try {
-					if (args.length == 0) { // default case. Just list all notes
-						PreparedStatement ps = new Connections().getConnection().prepareStatement("SELECT * FROM notes WHERE userid = ?");
-						ps.setString(1, event.getAuthor().getId());
-						ResultSet rs = ps.executeQuery();
-						
-						String message = "Here are all your notes:\n";
-						while (rs.next()) {
-							message += ("-" + rs.getString("name") + "\n");
-						}
-						if (!message.equals("Here are all saved notes:\n"))
-							event.getChannel().sendMessageAsync(message, null);
-						else
-							event.getChannel().sendMessageAsync("No notes found", null);
-					}	
-					else if (args[0].equals("add")) { // add case. Create a new note
-						PreparedStatement ps = new Connections().getConnection().prepareStatement("INSERT INTO notes(name, content, userid) VALUES(?, ?, ?)") ;
-						ps.setString(1, args[1].trim());
-						ps.setString(2, args[2].trim());
-						ps.setString(3, event.getAuthor().getId());
-						ps.executeUpdate();
-						
-						event.getChannel().sendMessageAsync("Note saved", null);
-					}
-					else if (args[0].equals("del")) { // delete case. Delete note with that name
-						PreparedStatement ps = new Connections().getConnection().prepareStatement("DELETE FROM notes WHERE name = ? AND userid = ?") ;
-						ps.setString(1, args[1]);
-						ps.setString(2, event.getAuthor().getId());
-						int rowsUpdated = ps.executeUpdate();
-						
-						if (rowsUpdated == 1)
-							event.getChannel().sendMessageAsync("Note deleted", null);
-						else
-							event.getChannel().sendMessageAsync("No note with that name found", null);
-					}
-					else {
-						if (args[0].equals("view"))
-							args[0] = args[1];
-						PreparedStatement ps = new Connections().getConnection().prepareStatement("SELECT * FROM notes WHERE name = ?");
-						ps.setString(1, args[0]);
-						ResultSet rs = ps.executeQuery();
-						
-						if (rs.next())
-							event.getChannel().sendMessageAsync(rs.getString("content"), null);
-						else
-							event.getChannel().sendMessageAsync("No note found", null);
-					}
-				} catch (MySQLIntegrityConstraintViolationException e) {
-					event.getChannel().sendMessageAsync("[Error] A note with that name already exists", null);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
 			}
 		});
 		
@@ -665,6 +607,68 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return "Removes the specified roles";
+			}
+		});
+
+		guildCommands.put("note", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				if (args.length == 1) {
+					String response = Notes.get(args[0], event.getAuthor().getId());
+					if (response == null)
+						event.getChannel().sendMessageAsync("Sorry, couldn't find that note for you", null);
+					else
+						event.getChannel().sendMessageAsync(response, null);
+				}
+				else if (args.length > 1) {
+					DiscordInfo info = new DiscordInfo();
+					boolean hasRights = (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))));
+					
+					if (args[0].equalsIgnoreCase("add")) {
+						boolean isPublic = false;
+						if (args[2].equals("1") || args[2].equalsIgnoreCase("public")) {
+							isPublic = true;
+							args[2] = args[3];
+							if (args.length > 4) {
+								for (int i = 4; i < args.length; i++)
+									args[2] = String.join(", ", args[2], args[i]);
+							}
+						} else {
+							if (args.length > 3) {
+								for (int i = 3; i < args.length; i++)
+									args[2] = String.join(", ", args[2], args[i]);
+							}
+						}
+						
+						if (Notes.add(args[1], event.getAuthor().getId(), args[2], (isPublic && hasRights)))
+							event.getChannel().sendMessageAsync("Saved", null);
+						else
+							event.getChannel().sendMessageAsync("Error, something went wrong. Maybe there's already a note with that name?", null);
+					} else if (args[0].equalsIgnoreCase("edit")) {
+						if (args.length < 3) {
+							event.getChannel().sendMessageAsync("Seems like you forgot to put the name or the new content in your message", null);
+							return;
+						}
+						
+						if (Notes.edit(args[1], event.getAuthor().getId(), args[2], hasRights))
+							event.getChannel().sendMessageAsync("Saved", null);
+						else
+							event.getChannel().sendMessageAsync("No note with that name found or you aren't allowed to edit the ones I did find", null);
+					} else if (args[0].equalsIgnoreCase("del")) {
+						if (args.length < 2) {
+							event.getChannel().sendMessageAsync("Seems like you forgot to put the name or the new content in your message", null);
+							return;
+						}
+						
+						if (Notes.delete(args[1], event.getAuthor().getId(), hasRights))
+							event.getChannel().sendMessageAsync("Saved", null);
+						else
+							event.getChannel().sendMessageAsync("No note with that name found or you aren't allowed to edit the ones I did find", null);
+					}
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return " notes";
 			}
 		});
 		//end of commands
