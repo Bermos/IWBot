@@ -36,6 +36,7 @@ import misc.Dance;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import iw_core.Missions;
 import iw_core.Notes;
 import net.dv8tion.jda.entities.Message.Attachment;
 import net.dv8tion.jda.entities.Guild;
@@ -669,6 +670,43 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return " notes";
+			}
+		});
+		
+		guildCommands.put("list", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				if (args.length < 1) {
+					Missions.getList(event.getChannel().getId());
+				}
+				else if ((args[0].equalsIgnoreCase("new") || args[0].equalsIgnoreCase("add")) && args.length > 1) {
+					String list = "";
+					for (int i = 1; i < args.length; i++) {
+						list = String.join(", ", list, args[i]);
+					}
+					list = list.replaceFirst(", ", "");
+					Missions.newList(event.getChannel(), list);
+				}
+				else if (args[0].equalsIgnoreCase("next")) {
+					Missions.nextListEntry(event.getChannel().getId());
+					event.getMessage().deleteMessage();
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "Nav list for missions";
+			}
+		});
+		
+		guildCommands.put("next", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				if (args.length < 1) {
+					Missions.nextListEntry(event.getChannel().getId());
+					event.getMessage().deleteMessage();
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "Nav list for missions";
 			}
 		});
 		//end of commands
