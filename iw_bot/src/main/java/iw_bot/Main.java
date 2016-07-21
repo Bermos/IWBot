@@ -1,7 +1,5 @@
 package iw_bot;
 
-import java.io.FileNotFoundException;
-
 import javax.security.auth.login.LoginException;
 
 import net.dv8tion.jda.JDABuilder;
@@ -12,10 +10,9 @@ public class Main {
 	public static void main(String[] args) {
 
 		try {
-			DiscordInfo info = new DiscordInfo();
 			
 			new JDABuilder()
-			.setBotToken(info.getToken())
+			.setBotToken(DiscordInfo.getToken())
 			.addListener(new Listener())
 			.buildBlocking();
 			
@@ -25,8 +22,6 @@ public class Main {
 			System.out.println("[Error] no bot token found.");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			System.out.println("[Error] 'discord.json' not found.");
 		}
 	}
 

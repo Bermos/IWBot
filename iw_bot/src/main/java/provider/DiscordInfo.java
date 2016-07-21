@@ -23,17 +23,25 @@ public class DiscordInfo {
 		String adminChanID;
 	}
 	
-	private void getInfo() throws FileNotFoundException {
-		Gson gson = new Gson();
-		JsonReader jReader = new JsonReader(new FileReader("./discord.json"));
-		info = gson.fromJson(jReader, Info.class);
+	private static void getInfo() {
+		try {
+			Gson gson = new Gson();
+			JsonReader jReader = new JsonReader(new FileReader("./discord.json"));
+			info = gson.fromJson(jReader, Info.class);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private void setInfo() throws IOException {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		JsonWriter jWriter = new JsonWriter(new FileWriter("./discord.json"));
-		gson.toJson(info, Info.class, jWriter);
-		jWriter.close();
+	private static void setInfo() {
+		try {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			JsonWriter jWriter = new JsonWriter(new FileWriter("./discord.json"));
+			gson.toJson(info, Info.class, jWriter);
+			jWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -42,7 +50,7 @@ public class DiscordInfo {
 	 * @return the token to login to Discord
 	 * @throws FileNotFoundException
 	 */
-	public String getToken() throws FileNotFoundException {
+	public static String getToken() {
 		if (info == null)
 			getInfo();
 		return info.token;
@@ -55,7 +63,7 @@ public class DiscordInfo {
 	 * @return list of ID strings
 	 * @throws FileNotFoundException
 	 */
-	public List<String> getOwnerIDs() throws FileNotFoundException {
+	public static List<String> getOwnerIDs() {
 		if (info == null)
 			getInfo();
 		return info.idOwner;
@@ -66,7 +74,7 @@ public class DiscordInfo {
 	 * @param id of the owner to add
 	 * @throws IOException
 	 */
-	public void addOwner(String id) throws IOException {
+	public static void addOwner(String id) {
 		if (info == null)
 			getInfo();
 		info.idOwner.add(id);
@@ -78,7 +86,7 @@ public class DiscordInfo {
 	 * @param id of the owner to remove
 	 * @throws IOException
 	 */
-	public void removeOwner(String id) throws IOException {
+	public static void removeOwner(String id) {
 		if (info == null)
 			getInfo();
 		info.idOwner.remove(info.idOwner.indexOf(id));
@@ -91,7 +99,7 @@ public class DiscordInfo {
 	 * @return message as string
 	 * @throws FileNotFoundException
 	 */
-	public String getNewMemberInfo() throws FileNotFoundException {
+	public static String getNewMemberInfo() {
 		if (info == null)
 			getInfo();
 		return info.newMember;
@@ -103,7 +111,7 @@ public class DiscordInfo {
 	 * @param message as string
 	 * @throws IOException
 	 */
-	public void setNewMemberInfo(String message) throws IOException {
+	public static void setNewMemberInfo(String message) {
 		if (info == null)
 			getInfo();
 		info.newMember = message;
@@ -116,7 +124,7 @@ public class DiscordInfo {
 	 * @return the admin channel id as string
 	 * @throws FileNotFoundException
 	 */
-	public String getAdminChanID() throws FileNotFoundException {
+	public static String getAdminChanID() {
 		if (info == null)
 			getInfo();
 		return info.adminChanID;
@@ -127,7 +135,7 @@ public class DiscordInfo {
 	 * @param id of the channel used for admins
 	 * @throws IOException
 	 */
-	public void setAdminChanID(String id) throws IOException {
+	public static void setAdminChanID(String id) {
 		if (info == null)
 			getInfo();
 		info.adminChanID = id;
@@ -139,7 +147,7 @@ public class DiscordInfo {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public List<String> getAdminRoleIDs() throws FileNotFoundException {
+	public static List<String> getAdminRoleIDs() {
 		if (info == null)
 			getInfo();
 		return info.idRoles;
@@ -150,39 +158,30 @@ public class DiscordInfo {
 	 * @param id
 	 * @throws IOException
 	 */
-	public void addAdminRoleID(String id) throws IOException {
+	public static void addAdminRoleID(String id) {
 		if (info == null)
 			getInfo();
 		info.idRoles.add(id);
 		setInfo();
 	}
 	
-	public void removeAdminRoleID(String id) throws IOException {
+	public static void removeAdminRoleID(String id) {
 		if (info == null)
 			getInfo();
 		info.idRoles.remove(id);
 		setInfo();
 	}
 	
-	public boolean isOwner(String id) {
-		try {
-			return getOwnerIDs().contains(id);
-		} catch (FileNotFoundException e) {
-			return false;
-		}
-		
+	public static boolean isOwner(String id) {
+		return getOwnerIDs().contains(id);
 	}
 	
-	public boolean isAdmin(List<Role> roles) {
-		try {
-			boolean isAdmin = false;
-			for (Role role : roles) {
-				if (getAdminRoleIDs().contains(role.getId()))
-					isAdmin = true;
-			}
-			return isAdmin;
-		} catch (FileNotFoundException e) {
-			return false;
+	public static boolean isAdmin(List<Role> roles) {
+		boolean isAdmin = false;
+		for (Role role : roles) {
+			if (getAdminRoleIDs().contains(role.getId()))
+				isAdmin = true;
 		}
+		return isAdmin;
 	}
 }

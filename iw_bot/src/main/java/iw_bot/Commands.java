@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
@@ -31,15 +30,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import misc.Dance;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import iw_core.Missions;
 import iw_core.Notes;
-import net.dv8tion.jda.entities.Message.Attachment;
+import misc.Dance;
 import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.entities.Message.Attachment;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
@@ -81,8 +79,7 @@ public class Commands {
 		pmCommands.put("status", new PMCommand() {
 			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!info.isOwner(event.getAuthor().getId())) {
+				if (!DiscordInfo.isOwner(event.getAuthor().getId())) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
@@ -98,8 +95,7 @@ public class Commands {
 		pmCommands.put("restart", new PMCommand() {
 			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!info.isOwner(event.getAuthor().getId())) {
+				if (!DiscordInfo.isOwner(event.getAuthor().getId())) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
@@ -130,8 +126,7 @@ public class Commands {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				event.getChannel().sendTyping();
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
@@ -156,8 +151,7 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "Upload desiered pic to discord and enter command in the description prompt";
 			}
@@ -167,8 +161,7 @@ public class Commands {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				event.getChannel().sendTyping();
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
@@ -183,8 +176,7 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "<name>";
 			}
@@ -194,8 +186,7 @@ public class Commands {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				event.getChannel().sendTyping();
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
@@ -209,8 +200,7 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "<game?> - To set the Playing: ...";
 			}
@@ -220,8 +210,7 @@ public class Commands {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				event.getChannel().sendTyping();
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
@@ -265,8 +254,7 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "<name>, <add|del|rename|color>, <newname|#color> - Edits the role in the specified way.";
 			}
@@ -329,34 +317,25 @@ public class Commands {
 
 		guildCommands.put("new", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
-				DiscordInfo info = new DiscordInfo();
 				//Permission check
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
 				
-				try {
-					if (args.length == 0) {
-						event.getChannel().sendMessageAsync(info.getNewMemberInfo().replaceAll("<user>", event.getAuthorName()), null);
-					}
-					else {
-						
-						info.setNewMemberInfo(event.getMessage().getRawContent().replaceFirst("/new", "").trim());
-						event.getChannel().sendMessageAsync("[Success] New member message changed", null);
-					}
-						
-				} catch (FileNotFoundException e) {
-					event.getChannel().sendMessageAsync("[Error] Couldn't find the message, sorry", null);
-				} catch (IOException e) {
-					event.getChannel().sendMessageAsync("[Error] Couldn't read required file", null);
+				if (args.length == 0) {
+					event.getChannel().sendMessageAsync(DiscordInfo.getNewMemberInfo().replaceAll("<user>", event.getAuthorName()), null);
+				}
+				else {
+					
+					DiscordInfo.setNewMemberInfo(event.getMessage().getRawContent().replaceFirst("/new", "").trim());
+					event.getChannel().sendMessageAsync("[Success] New member message changed", null);
 				}
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "<information?> - sets information for new players or shows it";
 			}
@@ -364,40 +343,34 @@ public class Commands {
 
 		guildCommands.put("adminchannel", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
-				DiscordInfo info = new DiscordInfo();
-				
 				//Permission check
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
-				try {
-					if (args.length == 0){
-						event.getChannel().sendMessageAsync("Admin channel is: <#" + info.getAdminChanID() + ">", null);
-					}
-					else if (!event.getMessage().getMentionedChannels().isEmpty()) {
-						info.setAdminChanID(event.getMessage().getMentionedChannels().get(0).getId());
-						event.getChannel().sendMessageAsync("[Success] Admin channel saved", null);
-					}
-					else {
-						TextChannel chan = event.getGuild().getTextChannels().stream().filter(vChan -> vChan.getName().equalsIgnoreCase(args[0].trim()))
-								.findFirst().orElse(null);
-						if (chan == null) {
-							event.getChannel().sendMessageAsync("Channel not found", null);
-							return;
-						} else
-							info.setAdminChanID(chan.getId());
-						event.getChannel().sendMessageAsync("[Success] Admin channel saved", null);
-					}
-				} catch (IOException e) {
-					event.getChannel().sendMessageAsync("[Error] Couldn't read required file", null);
+				
+				if (args.length == 0){
+					event.getChannel().sendMessageAsync("Admin channel is: <#" + DiscordInfo.getAdminChanID() + ">", null);
+				}
+				else if (!event.getMessage().getMentionedChannels().isEmpty()) {
+					DiscordInfo.setAdminChanID(event.getMessage().getMentionedChannels().get(0).getId());
+					event.getChannel().sendMessageAsync("[Success] Admin channel saved", null);
+				}
+				else {
+					TextChannel chan = event.getGuild().getTextChannels().stream().filter(vChan -> vChan.getName().equalsIgnoreCase(args[0].trim()))
+							.findFirst().orElse(null);
+					if (chan == null) {
+						event.getChannel().sendMessageAsync("Channel not found", null);
+						return;
+					} else
+						DiscordInfo.setAdminChanID(chan.getId());
+					event.getChannel().sendMessageAsync("[Success] Admin channel saved", null);
 				}
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "<channel> - sets admin channel";
 			}
@@ -405,68 +378,61 @@ public class Commands {
 
 		guildCommands.put("admin", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
-				DiscordInfo info = new DiscordInfo();
-				
 				//Permission check
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
 					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return;
 				}
 				
-				try {
-					if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("view"))) {
-						String message = "";
-						for (String id : info.getAdminRoleIDs())
-							message += ( "-" + event.getGuild().getRoleById(id).getName() + "\n" );
-						
-						if (!message.isEmpty())
-							event.getChannel().sendMessageAsync("Roles with admin privileges:\n" + message, null);
-						else
-							event.getChannel().sendMessageAsync("No admin roles defined", null);
-					}
-					else if (args[0].equalsIgnoreCase("add")) {
-						if (!event.getMessage().getMentionedRoles().isEmpty()) {
-							info.addAdminRoleID(event.getMessage().getMentionedRoles().get(0).getId());
-						} else if (args.length == 2) {
-							Role role = event.getGuild().getRoles().stream().filter(vrole -> vrole.getName().equalsIgnoreCase(args[1].trim())).findFirst().orElse(null);
-							if (role != null) {
-								info.addAdminRoleID(role.getId());
-							} else {
-								event.getChannel().sendMessageAsync("[Error] No role with this name found", null);
-								return;
-							}
+				if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("view"))) {
+					String message = "";
+					for (String id : DiscordInfo.getAdminRoleIDs())
+						message += ( "-" + event.getGuild().getRoleById(id).getName() + "\n" );
+					
+					if (!message.isEmpty())
+						event.getChannel().sendMessageAsync("Roles with admin privileges:\n" + message, null);
+					else
+						event.getChannel().sendMessageAsync("No admin roles defined", null);
+				}
+				else if (args[0].equalsIgnoreCase("add")) {
+					if (!event.getMessage().getMentionedRoles().isEmpty()) {
+						DiscordInfo.addAdminRoleID(event.getMessage().getMentionedRoles().get(0).getId());
+					} else if (args.length == 2) {
+						Role role = event.getGuild().getRoles().stream().filter(vrole -> vrole.getName().equalsIgnoreCase(args[1].trim())).findFirst().orElse(null);
+						if (role != null) {
+							DiscordInfo.addAdminRoleID(role.getId());
 						} else {
-							event.getChannel().sendMessageAsync("[Error] No role specified", null);
+							event.getChannel().sendMessageAsync("[Error] No role with this name found", null);
 							return;
 						}
-						event.getChannel().sendMessageAsync("[Success] Admin role saved", null);
+					} else {
+						event.getChannel().sendMessageAsync("[Error] No role specified", null);
+						return;
 					}
-					else if (args[0].equalsIgnoreCase("del")) {
-						if (!event.getMessage().getMentionedRoles().isEmpty()) {
-							info.removeAdminRoleID(event.getMessage().getMentionedRoles().get(0).getId());
-						} else if (args.length == 2) {
-							Role role = event.getGuild().getRoles().stream().filter(vrole -> vrole.getName().equalsIgnoreCase(args[1].trim())).findFirst().orElse(null);
-							if (role != null) {
-								info.removeAdminRoleID(role.getId());
-							} else {
-								event.getChannel().sendMessageAsync("[Error] No role with this name found", null);
-								return;
-							}
+					event.getChannel().sendMessageAsync("[Success] Admin role saved", null);
+				}
+				else if (args[0].equalsIgnoreCase("del")) {
+					if (!event.getMessage().getMentionedRoles().isEmpty()) {
+						DiscordInfo.removeAdminRoleID(event.getMessage().getMentionedRoles().get(0).getId());
+					} else if (args.length == 2) {
+						Role role = event.getGuild().getRoles().stream().filter(vrole -> vrole.getName().equalsIgnoreCase(args[1].trim())).findFirst().orElse(null);
+						if (role != null) {
+							DiscordInfo.removeAdminRoleID(role.getId());
 						} else {
-							event.getChannel().sendMessageAsync("[Error] No role specified", null);
+							event.getChannel().sendMessageAsync("[Error] No role with this name found", null);
 							return;
 						}
-						event.getChannel().sendMessageAsync("[Success] Admin role removed", null);
+					} else {
+						event.getChannel().sendMessageAsync("[Error] No role specified", null);
+						return;
 					}
-				} catch (IOException e) {
-					event.getChannel().sendMessageAsync("[Error] Couldn't read required file", null);
+					event.getChannel().sendMessageAsync("[Success] Admin role removed", null);
 				}
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
-				DiscordInfo info = new DiscordInfo();
-				if (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))))
 					return "";
 				return "<add?>|<del?>, <role?> - shows, adds or delets a role in/to/from admins";
 			}
@@ -621,8 +587,7 @@ public class Commands {
 						event.getChannel().sendMessageAsync(response, null);
 				}
 				else if (args.length > 1) {
-					DiscordInfo info = new DiscordInfo();
-					boolean hasRights = (!(info.isOwner(event.getAuthor().getId()) || info.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))));
+					boolean hasRights = (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))));
 					
 					if (args[0].equalsIgnoreCase("add")) {
 						boolean isPublic = false;
@@ -707,6 +672,19 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return "Nav list for missions";
+			}
+		});
+		
+		guildCommands.put("mission", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				if (args.length > 1 && args[0].equalsIgnoreCase("new")) {
+					Missions.create(args[1], event.getGuild().getManager());
+				}
+				event.getChannel().sendMessageAsync("Mission channel created and permissions set. Good luck!", null);
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "";
 			}
 		});
 		//end of commands

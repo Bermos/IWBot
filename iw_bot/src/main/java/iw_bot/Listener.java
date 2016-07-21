@@ -1,6 +1,5 @@
 package iw_bot;
 
-import java.io.FileNotFoundException;
 import java.util.Date;
 
 import iw_bot.Commands;
@@ -25,7 +24,7 @@ import provider.Statistics;
 public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
-	public static final String VERSION_NUMBER = "2.0.0_12 alpha";
+	public static final String VERSION_NUMBER = "2.0.0_13 alpha";
 	
 	public Listener() {
 		this.commands = new Commands();
@@ -103,13 +102,10 @@ public class Listener extends ListenerAdapter {
 	public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 		TextChannel channel = event.getGuild().getPublicChannel(); 
 		channel.sendTyping();
-		try {
-			channel.sendMessageAsync(new DiscordInfo().getNewMemberInfo().replaceAll("<user>", event.getUser().getUsername()), null);
-			event.getJDA().getTextChannelById(new DiscordInfo().getAdminChanID())
-				.sendMessageAsync("New user, " + event.getUser().getUsername() + ", just joined!", null);
-		} catch (FileNotFoundException e) {
-			event.getGuild().getPublicChannel().sendMessageAsync("[Error] Couldn't find the new member message, sorry. ", null);
-		}
+		
+		channel.sendMessageAsync(DiscordInfo.getNewMemberInfo().replaceAll("<user>", event.getUser().getUsername()), null);
+		event.getJDA().getTextChannelById(DiscordInfo.getAdminChanID())
+			.sendMessageAsync("New user, " + event.getUser().getUsername() + ", just joined!", null);
 		
 		Users.joined(event);
 	}
