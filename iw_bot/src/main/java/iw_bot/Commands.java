@@ -679,8 +679,12 @@ public class Commands {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				if (args.length > 1 && args[0].equalsIgnoreCase("new")) {
 					Missions.create(args[1], event.getGuild().getManager());
+					event.getChannel().sendMessageAsync("Mission channel created and permissions set. Good luck!", null);
 				}
-				event.getChannel().sendMessageAsync("Mission channel created and permissions set. Good luck!", null);
+				else if (args.length > 1 && args[0].equalsIgnoreCase("close")) {
+					Missions.archive(event.getChannel());
+					event.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendMessageAsync(event.getChannel().getName() + " channel and role deleted." ,null);
+				}
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {

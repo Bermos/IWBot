@@ -1,11 +1,25 @@
 package iw_core;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.io.Files;
+
+import net.dv8tion.jda.MessageHistory;
 import net.dv8tion.jda.Permission;
+import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.entities.impl.JDAImpl;
+import net.dv8tion.jda.entities.impl.MessageImpl;
 import net.dv8tion.jda.managers.ChannelManager;
 import net.dv8tion.jda.managers.GuildManager;
 import net.dv8tion.jda.managers.PermissionOverrideManager;
@@ -79,5 +93,35 @@ public class Missions {
 		permissionManager.update();
 	}
 
+	public static void archive(TextChannel channel) {
+		Role assoRole = null;
+		for (Role role : channel.getGuild().getRoles()) {
+			if (role.getName().equalsIgnoreCase(channel.getName()))
+				assoRole = role;
+		}
+		
+		List<String> lines = new ArrayList<String>();
+		lines.add("*****************START OF CHANNEL '" + channel.getName() + "' LOG*****************");
+		for (Message message : new MessageHistory(channel).retrieveAll()) {
+			String timestamp = message.getTime() 	== null ? "[?]" : "[" + message.getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "]";
+			String author	 = message.getAuthor() 	== null ? "?" 	: message.getAuthor().getUsername();
+			String content 	 = message.getContent() == null ? "?" 	: message.getContent();
+			lines.add(timestamp + " " + author + ": " + content);
+		}
+		lines.add("*******************END OF CHANNEL '" + channel.getName() + "' LOG*****************");
+		
+		Path pFile = Paths.get("./ChannelLogs/" + channel.getName() + ".txt");
+		try {
+			Files.write(pFile, lines, Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
+		File file = new File ("./ChannelLogs/" + channel.getName() + ".txt");
+		channel.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendMessage(channel.getName() + " archived.");
+		channel.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendFile(file, null);
+		channel.getManager().delete();
+		assoRole.getManager().delete();
+	}
+	
 }
