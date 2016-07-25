@@ -1,25 +1,17 @@
 package iw_core;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.io.Files;
 
 import net.dv8tion.jda.MessageHistory;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.impl.JDAImpl;
-import net.dv8tion.jda.entities.impl.MessageImpl;
 import net.dv8tion.jda.managers.ChannelManager;
 import net.dv8tion.jda.managers.GuildManager;
 import net.dv8tion.jda.managers.PermissionOverrideManager;
@@ -91,9 +83,37 @@ public class Missions {
 		permissionManager.deny (Permission.MESSAGE_READ);
 		permissionManager.deny (Permission.MESSAGE_WRITE);
 		permissionManager.update();
+		
+		String topic = "__**Explorer:**__\n"
+							+ "CMDR *edit*\n"
+							+ "Status: *edit*\n"
+							+ "PP affiliation: *edit*\n"
+							+ "\n"
+							+ "__**Systems:**__\n"
+							+ "RV: *edit*\n"
+							+ "Dest: *edit*\n"
+							+ "Dest Station: *edit*\n"
+							+ "\n"
+							+ "Prep time: *edit*\n"
+							+ "T-0: *edit* UTC\n"
+							+ "Mission duration: *edit*\n"
+							+ "\n"
+							+ "Alpha: *TBA*\n"
+							+ "Bravo: *TBA*\n"
+							+ "Charlie: *TBA*\n";
+		
+		missionChannelManager.setTopic(topic).update();
 	}
 
-	public static void archive(TextChannel channel) {
+	public static void archive(TextChannel channel, String id) {
+		MissionChannel mChannel = getChannel(channel.getId());
+		if (mChannel == null) {
+			mChannel = new MissionChannel(channel.getId(), channel.getGuild());
+			missionChannels.add(mChannel);
+		}
+		if (!mChannel.isPrimed(id))
+			return;
+		
 		Role assoRole = null;
 		for (Role role : channel.getGuild().getRoles()) {
 			if (role.getName().equalsIgnoreCase(channel.getName()))
@@ -110,9 +130,12 @@ public class Missions {
 		}
 		lines.add("*******************END OF CHANNEL '" + channel.getName() + "' LOG*****************");
 		
-		Path pFile = Paths.get("./ChannelLogs/" + channel.getName() + ".txt");
 		try {
-			Files.write(pFile, lines, Charset.forName("UTF-8"), StandardOpenOption.CREATE_NEW);
+			FileWriter writer = new FileWriter("./ChannelLogs/" + channel.getName() + ".txt"); 
+			for(String line: lines) {
+			  writer.write(line + "\n");
+			}
+			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -122,6 +145,15 @@ public class Missions {
 		channel.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendFile(file, null);
 		channel.getManager().delete();
 		assoRole.getManager().delete();
+	}
+
+	public static void archiveRequest(TextChannel channel, String id) {
+		MissionChannel mChannel = getChannel(channel.getId());
+		if (mChannel == null) {
+			mChannel = new MissionChannel(channel.getId(), channel.getGuild());
+			missionChannels.add(mChannel);
+		}
+		mChannel.primeForDelete(id);
 	}
 	
 }

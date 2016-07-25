@@ -10,6 +10,7 @@ import net.dv8tion.jda.entities.impl.TextChannelImpl;
 class MissionChannel extends TextChannelImpl {
 	private Message message;
 	private int next = 0;
+	private String delRequestID = null;
 	private List<NavSystem> systems = new ArrayList<NavSystem>();
 	
 	class NavSystem {
@@ -60,5 +61,17 @@ class MissionChannel extends TextChannelImpl {
 			message = sendMessage(content);
 		else
 			message.updateMessageAsync(content, null);
+	}
+
+	public void primeForDelete(String id) {
+		delRequestID = id;
+	}
+	
+	public boolean isPrimed(String id) {
+		if (delRequestID == null)
+			return false;
+		if (delRequestID.equals(id))
+			return true;
+		return false;
 	}
 }

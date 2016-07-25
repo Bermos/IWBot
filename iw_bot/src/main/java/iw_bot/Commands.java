@@ -113,7 +113,8 @@ public class Commands {
 					if (!entry.getValue().getHelp(event).isEmpty())
 						message += String.format("/%1$-12s | " + entry.getValue().getHelp(event) + "\n", entry.getKey());
 				}
-				message += "```";
+				message += "```\n";
+				message += "For a detailed help please use this guide: https://drive.google.com/file/d/0B1EHAnlL83qgbnRLV2ktQmVlOXM/view?usp=sharing";
 				event.getChannel().sendMessageAsync(message, null);
 			}
 			
@@ -681,8 +682,12 @@ public class Commands {
 					Missions.create(args[1], event.getGuild().getManager());
 					event.getChannel().sendMessageAsync("Mission channel created and permissions set. Good luck!", null);
 				}
-				else if (args.length > 1 && args[0].equalsIgnoreCase("close")) {
-					Missions.archive(event.getChannel());
+				else if (args.length == 1 && args[0].equalsIgnoreCase("close")) {
+					Missions.archiveRequest(event.getChannel(), event.getAuthor().getId());
+					event.getChannel().sendMessageAsync("Please confirm with '/mission yes' that you actually want to delete this channel. You cannot undo this!", null);
+				}
+				else if (args.length == 1 && args[0].equalsIgnoreCase("yes")) {
+					Missions.archive(event.getChannel(), event.getAuthor().getId());
 					event.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendMessageAsync(event.getChannel().getName() + " channel and role deleted." ,null);
 				}
 			}
