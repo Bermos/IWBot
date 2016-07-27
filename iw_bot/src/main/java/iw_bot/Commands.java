@@ -477,16 +477,14 @@ public class Commands {
 		guildCommands.put("time", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				Date date = new Date();
-				SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 				event.getMessage().deleteMessage();
-				event.getChannel().sendMessageAsync("UTC time:\n"
-						+ "```html\n"
-						+ "<" + sdf.format(date) + ">```", null);
+				event.getChannel().sendMessageAsync("UTC time:\n" + sdf.format(date), null);
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
-				return "Shows the channel details";
+				return "UTC date & time now";
 			}
 		});
 
@@ -707,6 +705,32 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return "";
+			}
+		});
+		
+		guildCommands.put("bgs", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				Role rBGS = null; //event.getGuild().getRoleById("");
+				Role rIW = null;
+				for (Role role : event.getGuild().getRoles()) {
+					if (role.getName().equals("BGS"))
+						rBGS = role;
+					if (role.getName().equals("Iridium Wing"))
+						rIW  = role;
+				}
+				
+				if (event.getGuild().getRolesForUser(event.getAuthor()).contains(rBGS)) {
+					event.getGuild().getManager().removeRoleFromUser(event.getAuthor(), rBGS).update();
+					event.getChannel().sendMessageAsync("BGS role removed", null);
+				}
+				else if (event.getGuild().getRolesForUser(event.getAuthor()).contains(rIW)) {
+					event.getGuild().getManager().addRoleToUser(event.getAuthor(), rBGS).update();
+					event.getChannel().sendMessageAsync("BGS role added", null);
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "Add or remove the bgs role to you";
 			}
 		});
 		//end of commands
