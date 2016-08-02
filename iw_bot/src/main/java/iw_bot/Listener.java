@@ -24,7 +24,7 @@ import provider.Statistics;
 public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
-	public static final String VERSION_NUMBER = "2.0.0_17 alpha";
+	public static final String VERSION_NUMBER = "2.0.0_18 alpha";
 	
 	public Listener() {
 		this.commands = new Commands();

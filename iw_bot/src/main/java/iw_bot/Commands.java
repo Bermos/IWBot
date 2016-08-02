@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,6 +34,7 @@ import org.jsoup.select.Elements;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import iw_core.BGSMissions;
 import iw_core.Missions;
 import iw_core.Notes;
 import misc.Dance;
@@ -646,7 +648,7 @@ public class Commands {
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
-				return " notes";
+				return "Relatively complicated. Refere to the guide linked below";
 			}
 		});
 		
@@ -731,6 +733,38 @@ public class Commands {
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return "Add or remove the bgs role to you";
+			}
+		});
+		
+		guildCommands.put("completed", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				if (args.length == 0) {
+					int no = BGSMissions.getNumberOfMissions(event.getAuthor().getId());
+					event.getChannel().sendMessageAsync("You've completed " + no + " missions so far.", null);
+				}
+				if (args.length == 1 && args[0].equalsIgnoreCase("board")) {
+					List<String> board = new ArrayList<String>();
+					String output = "```Top 5 cmdrs:\n";
+					board = BGSMissions.getBoard();
+					
+					for (String entry : board) {
+						output += "-" + entry + "\n";
+					}
+					output += "---------------------------\n";
+					output += "Total participants: " + BGSMissions.getTotalParticipants() + "\n";
+					output += "Total missions completed: " + BGSMissions.getTotalCompleted() + "\n";
+					output += "```";
+					
+					event.getChannel().sendMessageAsync(output, null);
+				}
+				else if (args.length == 1 && StringUtils.isNumeric(args[0])) {
+					BGSMissions.addMissions(event.getAuthor(), Integer.parseInt(args[0]));
+					event.getChannel().sendMessageAsync("Missions saved. Thank you for your engagement!", null);
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "Save the bgs missions you have completed today";
 			}
 		});
 		//end of commands
