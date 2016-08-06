@@ -3,11 +3,13 @@ package iw_bot;
 import java.util.Date;
 
 import iw_bot.Commands;
+import iw_core.Channels;
 import iw_core.Users;
 import misc.StatusGenerator;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.ReadyEvent;
+import net.dv8tion.jda.events.channel.text.TextChannelUpdatePositionEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberRoleAddEvent;
@@ -24,7 +26,7 @@ import provider.Statistics;
 public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
-	public static final String VERSION_NUMBER = "2.0.0_18 alpha";
+	public static final String VERSION_NUMBER = "2.0.0_19 alpha";
 	
 	public Listener() {
 		this.commands = new Commands();
@@ -96,6 +98,11 @@ public class Listener extends ListenerAdapter {
 			}
 		}
 		Statistics.getInstance().logMessage(event);
+	}
+	
+	@Override
+	public void onTextChannelUpdatePosition(TextChannelUpdatePositionEvent event) {
+		Channels.changed(event);
 	}
 	
 	@Override

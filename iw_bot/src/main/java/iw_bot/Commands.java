@@ -35,6 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import iw_core.BGSMissions;
+import iw_core.Channels;
 import iw_core.Missions;
 import iw_core.Notes;
 import misc.Dance;
@@ -742,10 +743,10 @@ public class Commands {
 					int no = BGSMissions.getNumberOfMissions(event.getAuthor().getId());
 					event.getChannel().sendMessageAsync("You've completed " + no + " missions so far.", null);
 				}
-				if (args.length == 1 && args[0].equalsIgnoreCase("board")) {
+				else if (args.length == 1 && args[0].equalsIgnoreCase("board")) {
 					List<String> board = new ArrayList<String>();
 					String output = "```Top 5 cmdrs:\n";
-					board = BGSMissions.getBoard();
+					board = BGSMissions.getBoard(5);
 					
 					for (String entry : board) {
 						output += "-" + entry + "\n";
@@ -761,12 +762,72 @@ public class Commands {
 					BGSMissions.addMissions(event.getAuthor(), Integer.parseInt(args[0]));
 					event.getChannel().sendMessageAsync("Missions saved. Thank you for your engagement!", null);
 				}
+				
+				//Permission check
+				else if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+					return;
+				}
+				
+				else if (args.length == 1 && (args[0].equalsIgnoreCase("allboard") || args[0].equalsIgnoreCase("fullboard") || args[0].equalsIgnoreCase("full board"))) {
+
+					List<String> board = new ArrayList<String>();
+					String output = "```Board:\n";
+					board = BGSMissions.getBoard(0);
+					
+					for (String entry : board) {
+						output += "-" + entry + "\n";
+					}
+					output += "---------------------------\n";
+					output += "Total participants: " + BGSMissions.getTotalParticipants() + "\n";
+					output += "Total missions completed: " + BGSMissions.getTotalCompleted() + "\n";
+					output += "```";
+					
+					event.getChannel().sendMessageAsync(output, null);
+				}
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return "Save the bgs missions you have completed today";
 			}
 		});
+		
+		guildCommands.put("channels", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				//Permission check
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+					return;
+				}
+				
+				if (args.length == 0) {
+					TextChannel mod = event.getJDA().getTextChannelById("207302898831458304");
+					String output = "Name | Pos | Pos raw\n";
+					for (TextChannel chan : event.getGuild().getTextChannels()) {
+						output += chan.getName() + " | " + chan.getPosition() + " | " + chan.getPositionRaw() + "\n";
+					}
+					mod.sendMessageAsync(output, null);
+				}
+				else if (args.length == 1 && args[0].equalsIgnoreCase("lock")) {
+					Channels.lock(event.getGuild().getTextChannels());
+					event.getChannel().sendMessageAsync("Locked", null);
+				}
+				else if (args.length == 1 && args[0].equalsIgnoreCase("unlock")) {
+					Channels.unlock();
+					event.getChannel().sendMessageAsync("Unlocked", null);
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				//Permission check
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
+					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+					return "";
+				}
+				return "Shows the channel details";
+			}
+		});
+		
 		//end of commands
 	}
 }

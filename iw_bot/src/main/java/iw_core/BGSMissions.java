@@ -30,11 +30,14 @@ public class BGSMissions {
 		return no;
 	}
 
-	public static List<String> getBoard() {
+	public static List<String> getBoard(int limit) {
 		List<String> board = new ArrayList<String>();
 		Connection connect = new Connections().getConnection();
+		if (limit == 0)
+			limit = 100;
 		try {
-			PreparedStatement ps = connect.prepareStatement("SELECT username, SUM(no) AS total FROM bgs_mission GROUP BY userid ORDER BY total DESC LIMIT 5");
+			PreparedStatement ps = connect.prepareStatement("SELECT username, SUM(no) AS total FROM bgs_mission GROUP BY userid ORDER BY total DESC LIMIT ?");
+			ps.setInt(1, limit);
 			ResultSet rs = ps.executeQuery();
 			
 			while (rs.next()) {

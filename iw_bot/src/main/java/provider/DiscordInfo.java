@@ -21,6 +21,7 @@ public class DiscordInfo {
 		List<String> idRoles;
 		String newMember;
 		String adminChanID;
+		List<String> channels;
 	}
 	
 	private static void getInfo() {
@@ -37,6 +38,8 @@ public class DiscordInfo {
 		try {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			JsonWriter jWriter = new JsonWriter(new FileWriter("./discord.json"));
+			jWriter.setHtmlSafe(false);
+			jWriter.setIndent("	");
 			gson.toJson(info, Info.class, jWriter);
 			jWriter.close();
 		} catch (IOException e) {
@@ -183,5 +186,18 @@ public class DiscordInfo {
 				isAdmin = true;
 		}
 		return isAdmin;
+	}
+
+	public static void setChannels (List<String> channelIDs) {
+		if (info == null)
+			getInfo();
+		info.channels = channelIDs;
+		setInfo();
+	}
+	
+	public static List<String> getChannels() {
+		if (info == null)
+			getInfo();
+		return info.channels;
 	}
 }
