@@ -39,6 +39,7 @@ import iw_core.Channels;
 import iw_core.Missions;
 import iw_core.Notes;
 import misc.Dance;
+import misc.DankMemes;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Message.Attachment;
 import net.dv8tion.jda.entities.Role;
@@ -800,21 +801,16 @@ public class Commands {
 					return;
 				}
 				
-				if (args.length == 0) {
-					TextChannel mod = event.getJDA().getTextChannelById("207302898831458304");
-					String output = "Name | Pos | Pos raw\n";
-					for (TextChannel chan : event.getGuild().getTextChannels()) {
-						output += chan.getName() + " | " + chan.getPosition() + " | " + chan.getPositionRaw() + "\n";
-					}
-					mod.sendMessageAsync(output, null);
-				}
-				else if (args.length == 1 && args[0].equalsIgnoreCase("lock")) {
+				if (args.length == 1 && args[0].equalsIgnoreCase("lock")) {
 					Channels.lock(event.getGuild().getTextChannels());
 					event.getChannel().sendMessageAsync("Locked", null);
 				}
 				else if (args.length == 1 && args[0].equalsIgnoreCase("unlock")) {
 					Channels.unlock();
 					event.getChannel().sendMessageAsync("Unlocked", null);
+				}
+				else if (args.length == 2) {
+					event.getJDA().getTextChannelById(args[0]).getManager().setPosition(Integer.parseInt(args[1])).update();
 				}
 			}
 			
@@ -825,6 +821,29 @@ public class Commands {
 					return "";
 				}
 				return "Shows the channel details";
+			}
+		});
+		
+		guildCommands.put("memes", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				//Permission check
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()))) {
+					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+					return;
+				}
+				
+				if (args.length == 1 && args[0].equalsIgnoreCase("update")) {
+					DankMemes.update();
+				}
+			}
+			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				//Permission check
+				if (!(DiscordInfo.isOwner(event.getAuthor().getId()))) {
+					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+					return "";
+				}
+				return "Interacts with the maymays";
 			}
 		});
 		

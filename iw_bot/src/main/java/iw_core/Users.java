@@ -6,8 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.User;
@@ -155,7 +159,9 @@ public class Users {
 	}
 	
 	public static void setOnlineStatus(UserOnlineStatusUpdateEvent event) {
-		System.out.printf("[Online Status] %s: %s\n", event.getUser().getUsername(), event.getUser().getOnlineStatus().name());
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		System.out.printf("[" + sdf.format(new Date()) + "][Online Status] %s: %s\n", event.getUser().getUsername(), event.getUser().getOnlineStatus().name());
 		try {
 			if(event.getUser().getOnlineStatus().name().equals("AWAY")) {
 				PreparedStatement ps = connect.prepareStatement("UPDATE iwmembers.user SET onlinestatus = ? WHERE iduser = ?");

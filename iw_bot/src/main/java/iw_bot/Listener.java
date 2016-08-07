@@ -1,10 +1,13 @@
 package iw_bot;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import iw_bot.Commands;
 import iw_core.Channels;
 import iw_core.Users;
+import misc.DankMemes;
 import misc.StatusGenerator;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
@@ -26,16 +29,20 @@ import provider.Statistics;
 public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
-	public static final String VERSION_NUMBER = "2.0.0_19 alpha";
+	public static SimpleDateFormat sdf;
+	public static final String VERSION_NUMBER = "2.0.1_20";
 	
 	public Listener() {
 		this.commands = new Commands();
+		sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		DankMemes.update();
 	}
 	
 	@Override
 	public void onReady(ReadyEvent event) {
-		System.out.println("[Info] Listener v" + VERSION_NUMBER + " ready!");
-		System.out.println("[Info] Connected to:");
+		System.out.println("[" + sdf.format(new Date()) + "][Info] Listener v" + VERSION_NUMBER + " ready!");
+		System.out.println("[" + sdf.format(new Date()) + "][Info] Connected to:");
 		for (Guild guild : event.getJDA().getGuilds()) {
 			System.out.println("	" + guild.getName());
 		}
@@ -52,7 +59,7 @@ public class Listener extends ListenerAdapter {
 	
 	@Override
 	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
-		System.out.printf("[PM] %s: %s\n", 	event.getAuthor().getUsername(),
+		System.out.printf("[" + sdf.format(new Date()) + "][PM] %s: %s\n", 	event.getAuthor().getUsername(),
 											event.getMessage().getContent());
 		
 		//Check for command
@@ -75,7 +82,7 @@ public class Listener extends ListenerAdapter {
 	
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent  event) {
-		System.out.printf("[%s][%s] %s: %s\n", 	event.getGuild().getName(),
+		System.out.printf("[" + sdf.format(new Date()) + "][%s][%s] %s: %s\n", 	event.getGuild().getName(),
 												event.getChannel().getName(),
 												event.getAuthor().getUsername(),
 												event.getMessage().getContent());
@@ -97,6 +104,9 @@ public class Listener extends ListenerAdapter {
 				commands.guildCommands.get(commandName).runCommand(event, args);
 			}
 		}
+		//Check for dankness
+		DankMemes.check(event);
+		
 		Statistics.getInstance().logMessage(event);
 	}
 	

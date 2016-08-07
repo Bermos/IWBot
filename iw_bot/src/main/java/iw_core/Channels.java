@@ -27,10 +27,15 @@ public class Channels {
 	}
 
 	public static void changed(TextChannelUpdatePositionEvent event) {
-		if (locked && (lastChanged + 5000) < System.currentTimeMillis()) {
+		if (locked && (lastChanged + 10000) < System.currentTimeMillis()) {
 			List<String> channelIDs = DiscordInfo.getChannels();
 			for (int i = 0; i < channelIDs.size(); i++) {
 				event.getJDA().getTextChannelById(channelIDs.get(i)).getManager().setPosition(i).update();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 			lastChanged = System.currentTimeMillis();
 			event.getJDA().getTextChannelById("207302898831458304").sendMessageAsync("Someone changed the channels again. I changed them back.", null);
