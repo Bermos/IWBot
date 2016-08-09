@@ -27,8 +27,10 @@ public class DankMemes {
 	}
 	
 	public static void check(GuildMessageReceivedEvent event) {
-		boolean checkSuccessful = false;
+		if (event.getAuthor().equals(event.getJDA().getSelfInfo()))
+			return;
 		for (Meme meme : memes) {
+			boolean checkSuccessful = false;
 			//Check this if the meme requires the command to match exactly
 			if (meme.exact) {
 				for (String key : meme.keys) {

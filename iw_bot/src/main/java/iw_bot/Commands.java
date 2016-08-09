@@ -817,7 +817,6 @@ public class Commands {
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
 				if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
-					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return "";
 				}
 				return "Shows the channel details";
@@ -834,13 +833,13 @@ public class Commands {
 				
 				if (args.length == 1 && args[0].equalsIgnoreCase("update")) {
 					DankMemes.update();
+					event.getChannel().sendMessageAsync("Memes updated from file.", null);
 				}
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
 				//Permission check
 				if (!(DiscordInfo.isOwner(event.getAuthor().getId()))) {
-					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
 					return "";
 				}
 				return "Interacts with the maymays";
