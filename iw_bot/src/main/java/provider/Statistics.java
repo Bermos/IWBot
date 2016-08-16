@@ -8,7 +8,6 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Pong;
-
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
@@ -123,5 +122,16 @@ public class Statistics extends Thread {
 				.addField("author", author)
 				.build();
 		influxDB.write(dbName, "default", commands);
+	}
+
+	public void logBGSActivity(long time, String userid, String username, String activity, int ammount) {
+		Point bgs = Point.measurement("bgs")
+				.time(time, TimeUnit.MILLISECONDS)
+				.addField("activity", activity)
+				.addField("userid", userid)
+				.addField("username", username)
+				.addField("ammount", ammount)
+				.build();
+		influxDB.write(dbName, "default", bgs);
 	}
 }

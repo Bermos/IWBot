@@ -30,7 +30,7 @@ public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
 	public static SimpleDateFormat sdf;
-	public static final String VERSION_NUMBER = "2.0.1_20";
+	public static final String VERSION_NUMBER = "2.1.1_22";
 	
 	public Listener() {
 		this.commands = new Commands();
@@ -98,8 +98,8 @@ public class Listener extends ListenerAdapter {
 					args[i] = args[i].trim();
 			}
 			
-			event.getChannel().sendTyping();
 			if (commands.guildCommands.containsKey(commandName)) {
+				event.getChannel().sendTyping();
 				Statistics.getInstance().logCommandReceived(commandName, event.getAuthor().getUsername());
 				commands.guildCommands.get(commandName).runCommand(event, args);
 			}

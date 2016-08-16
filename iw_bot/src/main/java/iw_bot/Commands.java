@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,7 +34,8 @@ import org.jsoup.select.Elements;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import iw_core.BGSMissions;
+import iw_core.BGS;
+import iw_core.BGS.Activity;
 import iw_core.Channels;
 import iw_core.Missions;
 import iw_core.Notes;
@@ -714,22 +715,97 @@ public class Commands {
 		
 		guildCommands.put("bgs", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
-				Role rBGS = null; //event.getGuild().getRoleById("");
-				Role rIW = null;
-				for (Role role : event.getGuild().getRoles()) {
-					if (role.getName().equals("BGS"))
-						rBGS = role;
-					if (role.getName().equals("Iridium Wing"))
-						rIW  = role;
-				}
-				
-				if (event.getGuild().getRolesForUser(event.getAuthor()).contains(rBGS)) {
-					event.getGuild().getManager().removeRoleFromUser(event.getAuthor(), rBGS).update();
-					event.getChannel().sendMessageAsync("BGS role removed", null);
-				}
-				else if (event.getGuild().getRolesForUser(event.getAuthor()).contains(rIW)) {
-					event.getGuild().getManager().addRoleToUser(event.getAuthor(), rBGS).update();
-					event.getChannel().sendMessageAsync("BGS role added", null);
+				if (args.length == 0) {
+					Role rBGS = null; //event.getGuild().getRoleById("");
+					Role rIW = null;
+					for (Role role : event.getGuild().getRoles()) {
+						if (role.getName().equals("BGS"))
+							rBGS = role;
+						if (role.getName().equals("Iridium Wing"))
+							rIW  = role;
+					}
+					
+					if (event.getGuild().getRolesForUser(event.getAuthor()).contains(rBGS)) {
+						event.getGuild().getManager().removeRoleFromUser(event.getAuthor(), rBGS).update();
+						event.getChannel().sendMessageAsync("BGS role removed", null);
+					}
+					else if (event.getGuild().getRolesForUser(event.getAuthor()).contains(rIW)) {
+						event.getGuild().getManager().addRoleToUser(event.getAuthor(), rBGS).update();
+						event.getChannel().sendMessageAsync("BGS role added", null);
+					}
+				} else if (args.length == 1) {
+					if (args[0].equalsIgnoreCase("mystats")) {
+						String output = "```";
+						for (Map.Entry<Activity, Double> entry : BGS.getTotalAmmount(event.getAuthor().getId()).entrySet()) {
+							output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
+						}
+						output += "```";
+						event.getChannel().sendMessageAsync(output, null);
+					} else if (args[0].equalsIgnoreCase("total") && DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))) {
+						String output = "```";
+						for (Map.Entry<Activity, Double> entry : BGS.getTotalAmmount().entrySet()) {
+							output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
+						}
+						output += "```";
+						event.getChannel().sendMessageAsync(output, null);
+					}
+				} else if (args.length == 2) {
+					String activity = null;
+					String username = event.getAuthorName();
+					String userid = event.getAuthor().getId();
+					int ammount = Integer.parseInt(args[1]);
+					
+					args[0] = args[0].toLowerCase();
+					switch (args[0]) {
+						case "bonds" 	 : activity = "Bond";	   break;
+						case "bounties"  : activity = "Bounty";  break;
+						case "mining" 	 : activity = "Mining";	   break;
+						case "missions"  : activity = "Mission";   break;
+						case "smuggling" : activity = "Smuggling"; break;
+						case "trade"	 : activity = "Trade";	   break;
+					}
+					if (activity != null) {
+						BGS.logActivity(Activity.valueOf(args[0]), userid, username, ammount);
+						event.getChannel().sendMessageAsync("Your engagement has been noticed. Thanks for your service o7", null);
+					}
+					
+				} else if (args.length == 3) {
+					if (args[0].equalsIgnoreCase("gettick") && DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))) {
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+						Date time;
+						try {
+							time = sdf.parse(args[2]);
+							String output = "Data for " + args[1] + " ticks after " + args[2] + " UTC:\n```";
+							for (Map.Entry<Activity, Double> entry : BGS.getTotalAmmount(time, Integer.parseInt(args[1])).entrySet()) {
+								output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
+							}
+							output += "```";
+							event.getChannel().sendMessageAsync(output, null);
+						} catch (ParseException e) {
+							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yyyy HH:mm'", null);
+						}
+						
+					} else if (args[0].equalsIgnoreCase("gettickfull") && DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))) {
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+						Date time;
+						try {
+							time = sdf.parse(args[2]);
+							List<String> lines = BGS.getCSVData(time, Integer.parseInt(args[1]));
+							
+							String output = "Data for " + args[1] + " ticks after " + args[2] + ":\n";
+							output += "----------------------------------------------------------------------\n";
+							output += lines.get(0) + "\n```";
+							for (int i = 1; i < lines.size(); i++) {
+								output += lines.get(i) + "\n";
+							}
+							output += "```";
+							
+							event.getChannel().sendMessageAsync(output, null);
+						} catch (ParseException e) {
+							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yyyy HH:mm'", null);
+						}
+						
+					}
 				}
 			}
 			
@@ -740,56 +816,11 @@ public class Commands {
 		
 		guildCommands.put("completed", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
-				if (args.length == 0) {
-					int no = BGSMissions.getNumberOfMissions(event.getAuthor().getId());
-					event.getChannel().sendMessageAsync("You've completed " + no + " missions so far.", null);
-				}
-				else if (args.length == 1 && args[0].equalsIgnoreCase("board")) {
-					List<String> board = new ArrayList<String>();
-					String output = "```Top 5 cmdrs:\n";
-					board = BGSMissions.getBoard(5);
-					
-					for (String entry : board) {
-						output += "-" + entry + "\n";
-					}
-					output += "---------------------------\n";
-					output += "Total participants: " + BGSMissions.getTotalParticipants() + "\n";
-					output += "Total missions completed: " + BGSMissions.getTotalCompleted() + "\n";
-					output += "```";
-					
-					event.getChannel().sendMessageAsync(output, null);
-				}
-				else if (args.length == 1 && StringUtils.isNumeric(args[0])) {
-					BGSMissions.addMissions(event.getAuthor(), Integer.parseInt(args[0]));
-					event.getChannel().sendMessageAsync("Missions saved. Thank you for your engagement!", null);
-				}
-				
-				//Permission check
-				else if (!(DiscordInfo.isOwner(event.getAuthor().getId()) || DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))) {
-					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
-					return;
-				}
-				
-				else if (args.length == 1 && (args[0].equalsIgnoreCase("allboard") || args[0].equalsIgnoreCase("fullboard") || args[0].equalsIgnoreCase("full board"))) {
-
-					List<String> board = new ArrayList<String>();
-					String output = "```Board:\n";
-					board = BGSMissions.getBoard(0);
-					
-					for (String entry : board) {
-						output += "-" + entry + "\n";
-					}
-					output += "---------------------------\n";
-					output += "Total participants: " + BGSMissions.getTotalParticipants() + "\n";
-					output += "Total missions completed: " + BGSMissions.getTotalCompleted() + "\n";
-					output += "```";
-					
-					event.getChannel().sendMessageAsync(output, null);
-				}
+				event.getChannel().sendMessageAsync("Please use '/bgs *activity*, #' from now on, thanks", null);
 			}
 			
 			public String getHelp(GuildMessageReceivedEvent event) {
-				return "Save the bgs missions you have completed today";
+				return "";
 			}
 		});
 		
