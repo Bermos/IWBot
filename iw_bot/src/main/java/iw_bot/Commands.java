@@ -757,21 +757,21 @@ public class Commands {
 					
 					args[0] = args[0].toLowerCase();
 					switch (args[0]) {
-						case "bonds" 	 : activity = "Bond";	   break;
-						case "bounties"  : activity = "Bounty";  break;
-						case "mining" 	 : activity = "Mining";	   break;
-						case "missions"  : activity = "Mission";   break;
-						case "smuggling" : activity = "Smuggling"; break;
-						case "trade"	 : activity = "Trade";	   break;
+						case "bonds" 	 : activity = "BOND";	   break;
+						case "bounties"  : activity = "BOUNTY";	   break;
+						case "mining" 	 : activity = "MINING";	   break;
+						case "missions"  : activity = "MISSION";   break;
+						case "smuggling" : activity = "SMUGGLING"; break;
+						case "trade"	 : activity = "TRADE";	   break;
 					}
 					if (activity != null) {
-						BGS.logActivity(Activity.valueOf(args[0]), userid, username, ammount);
+						BGS.logActivity(Activity.valueOf(activity), userid, username, ammount);
 						event.getChannel().sendMessageAsync("Your engagement has been noticed. Thanks for your service o7", null);
 					}
 					
 				} else if (args.length == 3) {
 					if (args[0].equalsIgnoreCase("gettick") && DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))) {
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm");
 						Date time;
 						try {
 							time = sdf.parse(args[2]);
@@ -782,11 +782,11 @@ public class Commands {
 							output += "```";
 							event.getChannel().sendMessageAsync(output, null);
 						} catch (ParseException e) {
-							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yyyy HH:mm'", null);
+							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yy HH:mm'", null);
 						}
 						
 					} else if (args[0].equalsIgnoreCase("gettickfull") && DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))) {
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm");
 						Date time;
 						try {
 							time = sdf.parse(args[2]);
@@ -802,7 +802,7 @@ public class Commands {
 							
 							event.getChannel().sendMessageAsync(output, null);
 						} catch (ParseException e) {
-							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yyyy HH:mm'", null);
+							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yy HH:mm'", null);
 						}
 						
 					}
