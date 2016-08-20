@@ -16,7 +16,7 @@ import provider.Statistics;
 
 public class BGS {
 	public enum Activity {
-		BOND, BOUNTY, MINING, MISSION, SMUGGLING, TRADE;
+		BOND, BOUNTY, MINING, MISSION, SCAN, SMUGGLING, TRADE;
 		
 		public String toString() {
 			return name().charAt(0) + name().substring(1).toLowerCase();
@@ -157,6 +157,7 @@ public class BGS {
 										"SUM( if( activity = 'Bounty', ammount, 0 ) ) AS Bounties, " +
 										"SUM( if( activity = 'Mining', ammount, 0 ) ) AS Mining, " +
 										"SUM( if( activity = 'Mission', ammount, 0 ) ) AS Missions, " +
+										"SUM( if( activity = 'Scan', ammount, 0 ) ) AS Scans, " +
 										"SUM( if( activity = 'Smuggling', ammount, 0 ) ) AS Smuggling, " +
 										"SUM( if( activity = 'Trade', ammount, 0 ) ) AS Trading " +
 									"FROM " +
@@ -171,14 +172,29 @@ public class BGS {
 			
 			String columnNames = "";
 			int columnCount = rs.getMetaData().getColumnCount();
+			int columnDateTime = -1;
+			int columnCMDRName = -1;
 			for (int i = 0; i < columnCount; i++) {
+				if (rs.getMetaData().getColumnName(i+1).equalsIgnoreCase("username")) {
+					columnCMDRName = i;
+				} else if (rs.getMetaData().getColumnName(i+1).equalsIgnoreCase("tick_start")) {
+					columnDateTime = i;
+				}
 				columnNames = String.join(", ", columnNames, rs.getMetaData().getColumnName(i+1));
 			}
 			lines.add(columnNames.replaceFirst(",", "").replace("username", "CMDR"));
 			while (rs.next()) {
 				String rowValues = "";
-				for (int i = 0; i < columnCount; i++)
-					rowValues = String.join(",", rowValues, rs.getString(i+1).replaceAll("-", "/").replace(".0", ""));
+				for (int i = 0; i < columnCount; i++) {
+					String rowValue = "";
+					if (i == columnCMDRName)
+						rowValue = rs.getString(i+1);
+					else if (i == columnDateTime)
+						rowValue = rs.getString(i+1).replaceAll("-", "/").replace(".0", "");
+					else
+						rowValue = rs.getString(i+1).replace("0", "");
+					rowValues = String.join(",", rowValues, rowValue);
+				}
 				lines.add(rowValues.replaceFirst(",", ""));
 			}
 		} catch (SQLException e) {

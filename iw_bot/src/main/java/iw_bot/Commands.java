@@ -761,6 +761,7 @@ public class Commands {
 						case "bounties"  : activity = "BOUNTY";	   break;
 						case "mining" 	 : activity = "MINING";	   break;
 						case "missions"  : activity = "MISSION";   break;
+						case "scans"	 : activity = "SCAN";	   break;
 						case "smuggling" : activity = "SMUGGLING"; break;
 						case "trade"	 : activity = "TRADE";	   break;
 					}
