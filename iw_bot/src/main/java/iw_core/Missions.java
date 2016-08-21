@@ -12,10 +12,10 @@ import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.managers.ChannelManager;
 import net.dv8tion.jda.managers.GuildManager;
 import net.dv8tion.jda.managers.PermissionOverrideManager;
-import net.dv8tion.jda.managers.RoleManager;
 import provider.DiscordInfo;
 
 public class Missions {
@@ -48,19 +48,15 @@ public class Missions {
 		getChannel(textChanID).print(true);
 	}
 	
-	public static void create(String name, GuildManager guildManager) {
+	public static void create(String name, GuildManager guildManager, User explorer) {
 		ChannelManager missionChannelManager = null;
-		RoleManager missionRoleManager = null;
+		Role iwRole = guildManager.getGuild().getRoleById("143171790225670145");
+		Role explorerRole = guildManager.getGuild().getRoleById("143403360081543168");
 		Role everyoneRole = guildManager.getGuild().getPublicRole();
 		Role moderatorRole = guildManager.getGuild().getRoleById(DiscordInfo.getAdminRoleIDs().get(0));
-		Role missionRole = null;
 		
 		String channelName = "mission_" + name;
-		String roleName = "Mission_" + name;
-		
-		missionRoleManager = guildManager.getGuild().createCopyOfRole(guildManager.getGuild().getRoleById("205515484223766528"));
-		missionRole = missionRoleManager.getRole();
-		missionRoleManager.setName(roleName).update();
+		String explName = "*edit*";
 		
 		missionChannelManager = guildManager.getGuild().createTextChannel(channelName);
 		PermissionOverrideManager permissionManager = missionChannelManager.getChannel().createPermissionOverride(moderatorRole);
@@ -72,7 +68,7 @@ public class Missions {
 		permissionManager.grant(Permission.MANAGE_CHANNEL);
 		permissionManager.update();
 		
-		permissionManager = missionChannelManager.getChannel().createPermissionOverride(missionRole);
+		permissionManager = missionChannelManager.getChannel().createPermissionOverride(iwRole);
 		permissionManager.grant(Permission.MESSAGE_READ);
 		permissionManager.grant(Permission.MESSAGE_WRITE);
 		permissionManager.grant(Permission.MESSAGE_MENTION_EVERYONE);
@@ -84,8 +80,25 @@ public class Missions {
 		permissionManager.deny (Permission.MESSAGE_WRITE);
 		permissionManager.update();
 		
+		if (explorer != null) {
+			permissionManager = missionChannelManager.getChannel().createPermissionOverride(explorer);
+			permissionManager.grant(Permission.MESSAGE_READ);
+			permissionManager.grant(Permission.MESSAGE_WRITE);
+			permissionManager.grant(Permission.MESSAGE_MENTION_EVERYONE);
+			permissionManager.grant(Permission.MESSAGE_HISTORY);
+			permissionManager.update();
+			
+			guildManager.addRoleToUser(explorer, explorerRole);
+			guildManager.update();
+			
+			if (guildManager.getGuild().getNicknameForUser(explorer) != null)
+				explName = guildManager.getGuild().getNicknameForUser(explorer);
+			else
+				explName = explorer.getUsername();
+		}
+		
 		String topic = "__**Explorer:**__\n"
-							+ "CMDR *edit*\n"
+							+ "CMDR " + explName + "\n"
 							+ "Status: *edit*\n"
 							+ "PP affiliation: *edit*\n"
 							+ "\n"
@@ -99,8 +112,7 @@ public class Missions {
 							+ "Mission duration: *edit*\n"
 							+ "\n"
 							+ "Alpha: *TBA*\n"
-							+ "Bravo: *TBA*\n"
-							+ "Charlie: *TBA*\n";
+							+ "Bravo: *TBA*\n";
 		
 		missionChannelManager.setTopic(topic).update();
 	}
@@ -144,7 +156,9 @@ public class Missions {
 		channel.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendMessage(channel.getName() + " archived.");
 		channel.getJDA().getTextChannelById(DiscordInfo.getAdminChanID()).sendFile(file, null);
 		channel.getManager().delete();
-		assoRole.getManager().delete();
+		
+		if (assoRole != null)
+			assoRole.getManager().delete();
 	}
 
 	public static void archiveRequest(TextChannel channel, String id) {

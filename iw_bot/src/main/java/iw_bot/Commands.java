@@ -81,19 +81,127 @@ public class Commands {
 			}
 		});
 		
-		pmCommands.put("status", new PMCommand() {
+		pmCommands.put("bgs", new PMCommand() {
 			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
-				//Permission check
-				if (!DiscordInfo.isOwner(event.getAuthor().getId())) {
-					event.getChannel().sendMessageAsync("[Error] You aren't authorized to do this", null);
+				if (args.length == 1) {
+					if (args[0].equalsIgnoreCase("mystats")) {
+						String output = "```";
+						for (Map.Entry<Activity, Double> entry : BGS.getTotalAmmount(event.getAuthor().getId()).entrySet()) {
+							output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
+						}
+						output += "```";
+						event.getChannel().sendMessageAsync(output, null);
+					}
+				}
+			}
+		});
+		
+		pmCommands.put("time", new PMCommand() {
+			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
+				Date date = new Date();
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+				event.getChannel().sendMessageAsync("UTC time:\n" + sdf.format(date), null);
+			}
+		});
+		
+		pmCommands.put("dist", new PMCommand() {
+			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
+				if (args.length < 2) {
+					event.getChannel().sendMessageAsync("[Error] Not enough systems specified", null);
 					return;
 				}
+				boolean failed = false;
+				Gson gson = new Gson();
+				EDSystem sys1 = null;
+				EDSystem sys2 = null;
+				String jsonSys1 = "";
+				String jsonSys2 = "";
+				String urlSys1 = "http://www.edsm.net/api-v1/system?sysname=" + args[0].trim().replaceAll(" ", "+") + "&coords=1";
+				String urlSys2 = "http://www.edsm.net/api-v1/system?sysname=" + args[1].trim().replaceAll(" ", "+") + "&coords=1";
 				
-				String message = "Threads:\n";
-				for (Thread thread : Thread.getAllStackTraces().keySet()) {
-					message += ( thread.getId() + ": " + thread.getName() + "\n" );
+				try {
+					Document docSys1 = Jsoup.connect(urlSys1).ignoreContentType(true).get();
+					Document docSys2 = Jsoup.connect(urlSys2).ignoreContentType(true).get();
+					
+					jsonSys1 = docSys1.body().text();
+					jsonSys2 = docSys2.body().text();
+					
+					if (jsonSys1.contains("[]")) {
+						event.getChannel().sendMessageAsync(args[0].trim().toUpperCase() + " not found.", null);
+						failed = true;
+					}
+					if (jsonSys2.contains("[]")) {
+						event.getChannel().sendMessageAsync(args[1].trim().toUpperCase() + " not found.", null);
+						failed = true;
+					}
+					if (failed)
+						return;
+					
+					sys1 = gson.fromJson(jsonSys1, EDSystem.class);
+					sys2 = gson.fromJson(jsonSys2, EDSystem.class);
+					
+					if (sys1.coords == null) {
+						event.getChannel().sendMessageAsync(args[0].trim().toUpperCase() + " found but coordinates not in db.", null);
+						failed = true;
+					}
+					if (sys2.coords == null) {
+						event.getChannel().sendMessageAsync(args[1].trim().toUpperCase() + " found but coordinates not in db.", null);
+						failed = true;
+					}
+					if (failed)
+						return;
+					
+					float x = sys2.coords.x - sys1.coords.x;
+					float y = sys2.coords.y - sys1.coords.y;
+					float z = sys2.coords.z - sys1.coords.z;
+					
+					double dist = Math.sqrt(x*x + y*y + z*z);
+
+					event.getChannel().sendMessageAsync(String.format("Distance: %.1f ly", dist), null);
+				} catch (JsonSyntaxException e) {
+					event.getChannel().sendMessageAsync("[Error] Processing edsm result failed", null);
+				} catch (SocketException e) {
+					event.getChannel().sendMessageAsync("[Error] Failed connecting to edsm. You might want to retry in a few", null);
+				} catch (IOException e) {
+					event.getChannel().sendMessageAsync("[Error] Processing data failed", null);
 				}
-				event.getChannel().sendMessageAsync(message, null);
+			}
+		});
+		
+		pmCommands.put("status", new PMCommand() {
+			public void runCommand(PrivateMessageReceivedEvent event, String[] args) {
+				Long diff 			 = (new Date().getTime() - Listener.startupTime);
+				int days			 = (int) TimeUnit.MILLISECONDS.toDays(diff);
+				int hours			 = (int) TimeUnit.MILLISECONDS.toHours(diff) % 24;
+				int minutes			 = (int) TimeUnit.MILLISECONDS.toMinutes(diff) % 60;
+				int seconds			 = (int) TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
+				NumberFormat nForm	 = NumberFormat.getInstance(Locale.GERMANY);
+				int noThreads		 = Thread.getAllStackTraces().keySet().size();
+				String uniqueSets	 = "";
+				String totalSets	 = "";
+				String totalMemory	 = String.format("%.2f",(double) Runtime.getRuntime().maxMemory() / 1024 / 1024);
+				String usedMemory	 = String.format("%.2f",(double)(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024);
+				
+				try {
+					PreparedStatement ps = new Connections().getConnection().prepareStatement("SELECT COUNT(idmarkov) AS unique_sets, sum(prob) AS total_sets FROM iwmembers.markov");
+					ResultSet rs = ps.executeQuery();
+					rs.next();
+					uniqueSets = nForm.format(rs.getInt("unique_sets")).replace('.', '\'');
+					totalSets = nForm.format(rs.getInt("total_sets")).replace('.', '\'');
+					rs.close();
+					ps.close();
+				} catch (SQLException e) { e.printStackTrace(); }
+				
+				String contOut = "```"
+						+ "Uptime              | " + String.format("%dd %02d:%02d:%02d\n", days, hours, minutes, seconds)
+						+ "# Threads           | " + noThreads						+ "\n"
+						+ "Memory usage        | " + usedMemory + "/" + totalMemory	+ " MB\n"
+						+ "Unique AI Datasets  | " + uniqueSets						+ "\n"
+						+ "Total AI Datasets   | " + totalSets						+ "\n"
+						+ "Version             | " + Listener.VERSION_NUMBER		+ "```";
+				
+				event.getChannel().sendMessageAsync(contOut, null);
 			}
 		});
 		
@@ -695,7 +803,7 @@ public class Commands {
 		guildCommands.put("mission", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				if (args.length > 1 && args[0].equalsIgnoreCase("new")) {
-					Missions.create(args[1], event.getGuild().getManager());
+					Missions.create(args[1], event.getGuild().getManager(), event.getMessage().getMentionedUsers().get(0));
 					event.getChannel().sendMessageAsync("Mission channel created and permissions set. Good luck!", null);
 				}
 				else if (args.length == 1 && args[0].equalsIgnoreCase("close")) {
@@ -740,14 +848,17 @@ public class Commands {
 							output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
 						}
 						output += "```";
-						event.getChannel().sendMessageAsync(output, null);
-					} else if (args[0].equalsIgnoreCase("total") && DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor()))) {
+						event.getAuthor().getPrivateChannel().sendMessageAsync(output, null);
+					} else if (args[0].equalsIgnoreCase("total")) {
 						String output = "```";
 						for (Map.Entry<Activity, Double> entry : BGS.getTotalAmmount().entrySet()) {
 							output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
 						}
 						output += "```";
-						event.getChannel().sendMessageAsync(output, null);
+						if (DiscordInfo.isAdmin(event.getGuild().getRolesForUser(event.getAuthor())))
+							event.getChannel().sendMessageAsync(output, null);
+						else
+							event.getAuthor().getPrivateChannel().sendMessageAsync(output, null);
 					}
 				} else if (args.length == 2) {
 					String activity = null;
@@ -777,11 +888,15 @@ public class Commands {
 						try {
 							time = sdf.parse(args[2]);
 							String output = "Data for " + args[1] + " ticks after " + args[2] + " UTC:\n```";
-							for (Map.Entry<Activity, Double> entry : BGS.getTotalAmmount(time, Integer.parseInt(args[1])).entrySet()) {
+							Map<Activity, Double> entries = BGS.getTotalAmmount(time, Integer.parseInt(args[1]));
+							for (Map.Entry<Activity, Double> entry : entries.entrySet()) {
 								output += entry.getKey().toString() + ": " + NumberFormat.getInstance(Locale.GERMANY).format(entry.getValue().intValue()).replace('.', '\'') + "\n";
 							}
 							output += "```";
-							event.getChannel().sendMessageAsync(output, null);
+							if (entries.isEmpty())
+								event.getChannel().sendMessageAsync("No records for the specified period", null);
+							else
+								event.getChannel().sendMessageAsync(output, null);
 						} catch (ParseException e) {
 							event.getChannel().sendMessageAsync("Parsing error. Make sure the date follows the pattern 'dd/MM/yy HH:mm'", null);
 						}
@@ -799,6 +914,8 @@ public class Commands {
 							for (int i = 1; i < lines.size(); i++) {
 								output += lines.get(i) + "\n";
 							}
+							if (lines.size() < 2)
+								output += "No records found";
 							output += "```";
 							
 							event.getChannel().sendMessageAsync(output, null);
