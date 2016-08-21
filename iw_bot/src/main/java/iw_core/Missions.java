@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.dv8tion.jda.MessageHistory;
@@ -133,8 +134,10 @@ public class Missions {
 		}
 		
 		List<String> lines = new ArrayList<String>();
+		List<Message> history = new MessageHistory(channel).retrieveAll();
+		Collections.reverse(history);
 		lines.add("*****************START OF CHANNEL '" + channel.getName() + "' LOG*****************");
-		for (Message message : new MessageHistory(channel).retrieveAll()) {
+		for (Message message : history) {
 			String timestamp = message.getTime() 	== null ? "[?]" : "[" + message.getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "]";
 			String author	 = message.getAuthor() 	== null ? "?" 	: message.getAuthor().getUsername();
 			String content 	 = message.getContent() == null ? "?" 	: message.getContent();
