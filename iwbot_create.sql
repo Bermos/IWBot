@@ -1,10 +1,5 @@
 CREATE DATABASE  IF NOT EXISTS `iwbot` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `iwbot`;
--- MySQL dump 10.13  Distrib 5.7.12, for Win64 (x86_64)
---
--- Host: 37.48.78.62    Database: iwbot
--- ------------------------------------------------------
--- Server version	5.5.49-0+deb7u1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -30,7 +25,7 @@ CREATE TABLE `feedback` (
   `content` mediumtext NOT NULL,
   `read` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`idfeedback`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +42,7 @@ CREATE TABLE `notes` (
   `is_public` bit(1) NOT NULL DEFAULT b'0',
   `content` varchar(2000) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
