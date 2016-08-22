@@ -113,8 +113,8 @@ public class Commands {
 				}
 				boolean failed = false;
 				Gson gson = new Gson();
-				EDSystem sys1 = null;
-				EDSystem sys2 = null;
+				EDSystem sys1;
+				EDSystem sys2;
 				String jsonSys1 = "";
 				String jsonSys2 = "";
 				String urlSys1 = "http://www.edsm.net/api-v1/system?sysname=" + args[0].trim().replaceAll(" ", "+") + "&coords=1";
@@ -382,8 +382,8 @@ public class Commands {
 				}
 				boolean failed = false;
 				Gson gson = new Gson();
-				EDSystem sys1 = null;
-				EDSystem sys2 = null;
+				EDSystem sys1;
+				EDSystem sys2;
 				String jsonSys1 = "";
 				String jsonSys2 = "";
 				String urlSys1 = "http://www.edsm.net/api-v1/system?sysname=" + args[0].trim().replaceAll(" ", "+") + "&coords=1";
@@ -803,7 +803,8 @@ public class Commands {
 		guildCommands.put("mission", new GuildCommand() {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				if (args.length > 1 && args[0].equalsIgnoreCase("new")) {
-					Missions.create(args[1], event.getGuild().getManager(), event.getMessage().getMentionedUsers().get(0));
+					User explorer = event.getMessage().getMentionedUsers().isEmpty() ? null : event.getMessage().getMentionedUsers().get(0);
+					Missions.create(args[1], event.getGuild().getManager(), explorer);
 					event.getChannel().sendMessageAsync("Mission channel created and permissions set. Good luck!", null);
 				}
 				else if (args.length == 1 && args[0].equalsIgnoreCase("close")) {
@@ -937,6 +938,21 @@ public class Commands {
 				event.getChannel().sendMessageAsync("Please use '/bgs *activity*, #' from now on, thanks", null);
 			}
 			
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "";
+			}
+		});
+
+		guildCommands.put("roll", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				if (args.length == 0) {
+					event.getChannel().sendMessageAsync("You rolled a " + (new Random().nextInt(6) + 1), null);
+				}
+				else if (args.length == 1) {
+					event.getChannel().sendMessageAsync("You rolled a " + (new Random().nextInt(Integer.parseInt(args[0])) + 1), null);
+				}
+			}
+
 			public String getHelp(GuildMessageReceivedEvent event) {
 				return "";
 			}
