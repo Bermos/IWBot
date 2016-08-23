@@ -192,7 +192,7 @@ public class BGS {
 					else if (i == columnDateTime)
 						rowValue = rs.getString(i+1).replaceAll("-", "/").replace(".0", "");
 					else
-						rowValue = rs.getString(i+1).replace("0", "");
+						rowValue = rs.getString(i+1).equals("0") ? "" : rs.getString(i+1);
 					rowValues = String.join(",", rowValues, rowValue);
 				}
 				lines.add(rowValues.replaceFirst(",", ""));
