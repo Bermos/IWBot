@@ -8,6 +8,7 @@ import iw_bot.Commands;
 import iw_core.Channels;
 import iw_core.Users;
 import misc.DankMemes;
+import misc.Reminder;
 import misc.StatusGenerator;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
@@ -30,7 +31,7 @@ public class Listener extends ListenerAdapter {
 	private Commands commands;
 	public static long startupTime;
 	public static SimpleDateFormat sdf;
-	public static final String VERSION_NUMBER = "2.2.1_24";
+	public static final String VERSION_NUMBER = "2.3.0_25";
 	
 	public Listener() {
 		this.commands = new Commands();
@@ -55,6 +56,8 @@ public class Listener extends ListenerAdapter {
 		
 		new Users();
 		Users.sync(event);
+
+		new Reminder().startChecks(event.getJDA());
 	}
 	
 	@Override

@@ -40,6 +40,7 @@ import iw_core.Channels;
 import iw_core.Missions;
 import iw_core.Notes;
 import misc.Dance;
+import misc.Reminder;
 import misc.DankMemes;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Message.Attachment;
@@ -678,7 +679,7 @@ public class Commands {
 			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
 				User author = event.getAuthor();
 				Guild guild = event.getGuild();
-				List<Role> rolesToStrip = new ArrayList<Role>();
+				List<Role> rolesToStrip = new ArrayList<>();
 				
 				for (Role role : guild.getRoles()) {
 					for (String roleName : args) {
@@ -1008,6 +1009,78 @@ public class Commands {
 					return "";
 				}
 				return "Interacts with the maymays";
+			}
+		});
+
+		guildCommands.put("reminder", new GuildCommand() {
+			public void runCommand(GuildMessageReceivedEvent event, String[] args) {
+				String userid = event.getAuthor().getId();
+				String reason;
+				long time;
+
+				if (args.length == 1) {
+					reason = "";
+					time = new Date().getTime();
+					if (args[0].contains("s")) {
+						time += Integer.parseInt(args[0].replace("s", "")) * 1000;
+					}
+					else if (args[0].contains("m")) {
+						time += Integer.parseInt(args[0].replace("m", "")) * 1000 * 60;
+					}
+					else if (args[0].contains("h")) {
+						time += Integer.parseInt(args[0].replace("h", "")) * 1000 * 60 * 60;
+					}
+					else if (args[0].contains("d")) {
+						time += Integer.parseInt(args[0].replace("d", "")) * 1000 * 60 * 60 * 24;
+					}
+					else if (args[0].contains("w")) {
+						time += Integer.parseInt(args[0].replace("w", "")) * 1000 * 60 * 60 * 24 * 7;
+					}
+					else if (args[0].contains("y")) {
+						time += Integer.parseInt(args[0].replace("y", "")) * 1000 * 60 * 60 * 24 * 365;
+					}
+					else {
+						event.getChannel().sendMessageAsync("Please specify the time unit (s, m, h, d, w, y)", null);
+						return;
+					}
+				}
+				else if (args.length == 2) {
+					time = new Date().getTime();
+					if (args[0].contains("s")) {
+						time += Integer.parseInt(args[0].replace("s", "")) * 1000;
+					}
+					else if (args[0].contains("m")) {
+						time += Integer.parseInt(args[0].replace("m", "")) * 1000 * 60;
+					}
+					else if (args[0].contains("h")) {
+						time += Integer.parseInt(args[0].replace("h", "")) * 1000 * 60 * 60;
+					}
+					else if (args[0].contains("d")) {
+						time += Integer.parseInt(args[0].replace("d", "")) * 1000 * 60 * 60 * 24;
+					}
+					else if (args[0].contains("w")) {
+						time += Integer.parseInt(args[0].replace("w", "")) * 1000 * 60 * 60 * 24 * 7;
+					}
+					else if (args[0].contains("y")) {
+						time += Integer.parseInt(args[0].replace("y", "")) * 1000 * 60 * 60 * 24 * 365;
+					}
+					else {
+						event.getChannel().sendMessageAsync("Please specify the time unit (s, m, h, d, w, y)", null);
+						return;
+					}
+					reason = args[1];
+				}
+				else {
+					event.getChannel().sendMessageAsync("I need at least a delay after which to remind you.", null);
+					return;
+				}
+
+				Reminder.add(userid, reason, time);
+				event.getChannel().sendMessageAsync("Reminder set", null);
+			}
+
+			public String getHelp(GuildMessageReceivedEvent event) {
+				return "Syntax is: '/reminder ##t, reason' - ## number, t time unit (s, m, h, d, w, y), reason is optional";
 			}
 		});
 		

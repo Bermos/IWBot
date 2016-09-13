@@ -5,9 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,8 +13,12 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import com.siyeh.ig.psiutils.CollectionUtils;
 import net.dv8tion.jda.MessageBuilder;
+import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.guild.GuildMessageReceivedEvent;
+import org.intellij.lang.annotations.Flow;
+import org.jetbrains.annotations.NotNull;
 import structs.Meme;
 
 public class DankMemes {
@@ -27,8 +29,17 @@ public class DankMemes {
 	}
 	
 	public static void check(GuildMessageReceivedEvent event) {
+		List<String> mentionedUsers = new ArrayList<String>();
 		if (event.getAuthor().equals(event.getJDA().getSelfInfo()))
 			return;
+		if (!event.getMessage().getMentionedUsers().isEmpty()) {
+			for (User user : event.getMessage().getMentionedUsers()) {
+				if (event.getGuild().getNicknameForUser(user) != null)
+					mentionedUsers.add(event.getGuild().getNicknameForUser(user).toLowerCase());
+				else
+					mentionedUsers.add(event.getGuild().getNicknameForUser(user).toLowerCase());
+			}
+		}
 		for (Meme meme : memes) {
 			boolean checkSuccessful = false;
 			//Check this if the meme requires the command to match exactly
@@ -55,6 +66,15 @@ public class DankMemes {
 					if (event.getChannel().getId().equals(id))
 						checkSuccessful = true;
 				}
+			}
+			if (!checkSuccessful)
+				continue;
+
+			checkSuccessful = false;
+			if (mentionedUsers.isEmpty())
+				checkSuccessful = true;
+			else if (!Collections.disjoint(mentionedUsers, meme.keys)) {
+				checkSuccessful = true;
 			}
 			if (!checkSuccessful)
 				continue;
